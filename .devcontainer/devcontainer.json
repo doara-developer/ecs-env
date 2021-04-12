@@ -1,0 +1,20 @@
+{
+  "name": "Terraform",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "settings": {
+    "terminal.integrated.shell.linux": "/bin/sh"
+  },
+  "extensions": [
+    "streetsidesoftware.code-spell-checker",
+    "ms-azuretools.vscode-docker",
+    "editorconfig.editorconfig",
+    "eamodio.gitlens",
+    "ms-ceintl.vscode-language-pack-ja",
+    "jebbs.plantuml",
+    "hashicorp.terraform"
+  ],
+  "forwardPorts": [3000],
+  "remoteUser": "root"
+}
