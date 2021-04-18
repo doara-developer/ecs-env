@@ -9,6 +9,13 @@ resource "aws_vpc" "vpc" {
   }
 }
 
+resource "aws_internet_gateway" "igw" {
+  vpc_id = aws_vpc.vpc.id
+  tags = {
+    Name = "ecs-env-igw"
+  }
+}
+
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.vpc.id
 
@@ -90,12 +97,5 @@ resource "aws_subnet" "private" {
   availability_zone = each.value.az
   tags = {
     Name = "ecs-env-${each.value.name}"
-  }
-}
-
-resource "aws_internet_gateway" "igw" {
-  vpc_id = aws_vpc.vpc.id
-  tags = {
-    Name = "ecs-env-igw"
   }
 }
