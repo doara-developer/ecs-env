@@ -68,3 +68,10 @@ resource "aws_subnet" "private" {
     Name = "ecs-env-${each.value.name}"
   }
 }
+
+resource "aws_internet_gateway" "igw" {
+  vpc_id = aws_vpc.vpc.id
+  tags = {
+    Name = "ecs-env-igw"
+  }
+}
