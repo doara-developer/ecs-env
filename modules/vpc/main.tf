@@ -9,6 +9,14 @@ resource "aws_vpc" "vpc" {
   }
 }
 
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.vpc.id
+
+  tags = {
+    Name = "ecs-env-public"
+  }
+}
+
 variable "public_subnets" {
   default = {
     "public-1a" = {
