@@ -76,6 +76,12 @@ resource "aws_nat_gateway" "nat" {
   }
 }
 
+resource "aws_route_table_association" "public_1a" {
+  for_each       = var.public_subnets
+  subnet_id      = aws_subnet.public[each.key].id
+  route_table_id = aws_route_table.public.id
+}
+
 variable "private_subnets" {
   default = {
     "private-1a" = {
