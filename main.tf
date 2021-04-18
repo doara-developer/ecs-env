@@ -25,71 +25,62 @@ resource "aws_vpc" "vpc" {
   }
 }
 
-resource "aws_subnet" "public_1a" {
-  vpc_id = aws_vpc.vpc.id
-
-  availability_zone = "ap-northeast-1a"
-
-  cidr_block = "10.0.1.0/24"
-
-  tags = {
-    Name = "ecs-env-public-1a"
-  }
-}
-resource "aws_subnet" "public_1c" {
-  vpc_id = aws_vpc.vpc.id
-
-  availability_zone = "ap-northeast-1c"
-
-  cidr_block = "10.0.2.0/24"
-
-  tags = {
-    Name = "ecs-env-public-1c"
+variable "public_subnets" {
+  default = {
+    "public-1a" = {
+      cidr = "10.0.1.0/24"
+      az   = "ap-northeast-1a"
+      name = "public-1a"
+    }
+    "public-1c" = {
+      cidr = "10.0.2.0/24"
+      az   = "ap-northeast-1c"
+      name = "public-1c"
+    }
+    "public-1d" = {
+      cidr = "10.0.3.0/24"
+      az   = "ap-northeast-1d"
+      name = "public-1d"
+    }
   }
 }
 
-resource "aws_subnet" "public_1d" {
-  vpc_id = aws_vpc.vpc.id
-
-  availability_zone = "ap-northeast-1d"
-
-  cidr_block = "10.0.3.0/24"
-
+resource "aws_subnet" "public" {
+  for_each          = var.public_subnets
+  vpc_id            = aws_vpc.vpc.id
+  cidr_block        = each.value.cidr
+  availability_zone = each.value.az
   tags = {
-    Name = "ecs-env-public-1d"
+    Name = "ecs-env-${each.value.name}"
   }
 }
 
-# Private Subnets
-resource "aws_subnet" "private_1a" {
-  vpc_id = aws_vpc.vpc.id
-
-  availability_zone = "ap-northeast-1a"
-  cidr_block        = "10.0.10.0/24"
-
-  tags = {
-    Name = "ecs-env-private-1a"
+variable "private_subnets" {
+  default = {
+    "private-1a" = {
+      cidr = "10.0.10.0/24"
+      az   = "ap-northeast-1a"
+      name = "private-1a"
+    }
+    "private-1c" = {
+      cidr = "10.0.20.0/24"
+      az   = "ap-northeast-1c"
+      name = "private-1c"
+    }
+    "private-1d" = {
+      cidr = "10.0.30.0/24"
+      az   = "ap-northeast-1d"
+      name = "private-1d"
+    }
   }
 }
 
-resource "aws_subnet" "private_1c" {
-  vpc_id = aws_vpc.vpc.id
-
-  availability_zone = "ap-northeast-1c"
-  cidr_block        = "10.0.20.0/24"
-
+resource "aws_subnet" "private" {
+  for_each          = var.private_subnets
+  vpc_id            = aws_vpc.vpc.id
+  cidr_block        = each.value.cidr
+  availability_zone = each.value.az
   tags = {
-    Name = "ecs-env-private-1c"
-  }
-}
-
-resource "aws_subnet" "private_1d" {
-  vpc_id = aws_vpc.vpc.id
-
-  availability_zone = "ap-northeast-1d"
-  cidr_block        = "10.0.30.0/24"
-
-  tags = {
-    Name = "ecs-env-private-1d"
+    Name = "ecs-env-${each.value.name}"
   }
 }
