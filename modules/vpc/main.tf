@@ -38,6 +38,22 @@ resource "aws_subnet" "public" {
     Name = "ecs-env-${each.value.name}"
   }
 }
+resource "aws_eip" "nat" {
+  for_each = var.public_subnets
+  vpc      = true
+  tags = {
+    Name = "ecs-env-${each.value.name}"
+  }
+}
+
+resource "aws_nat_gateway" "nat" {
+  for_each      = var.public_subnets
+  subnet_id     = aws_subnet.public[each.key].id
+  allocation_id = aws_eip.nat[each.key].id
+  tags = {
+    Name = "ecs-env-${each.value.name}"
+  }
+}
 
 variable "private_subnets" {
   default = {
