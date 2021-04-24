@@ -34,3 +34,20 @@ resource "aws_lb" "main" {
   security_groups = [aws_security_group.alb.id]
   subnets         = var.public_subnets_id
 }
+
+resource "aws_lb_listener" "main" {
+  port     = "80"
+  protocol = "HTTP"
+
+  load_balancer_arn = aws_lb.main.arn
+
+  default_action {
+    type = "fixed-response"
+
+    fixed_response {
+      content_type = "text/plain"
+      status_code  = "200"
+      message_body = "ok"
+    }
+  }
+}
