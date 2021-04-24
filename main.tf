@@ -1,5 +1,6 @@
 variable "aws_access_key" {}
 variable "aws_secret_key" {}
+variable "domain_name" {}
 
 provider "aws" {
   version    = "~> 3.0"
@@ -19,9 +20,11 @@ module "vpc" {
 }
 
 module "alb" {
-  source            = "./modules/alb"
-  vpc_id            = module.vpc.vpc_id
-  public_subnets_id = module.vpc.public_subnets_id
+  source              = "./modules/alb"
+  vpc_id              = module.vpc.vpc_id
+  public_subnets_id   = module.vpc.public_subnets_id
+  acm_certificate_arn = module.acm_route53.acm_certificate_arn
+  domain_name         = var.domain_name
 }
 
 module "ecs" {
@@ -30,4 +33,11 @@ module "ecs" {
   private_subnets_id   = module.vpc.private_subnets_id
   alb_target_group_arn = module.alb.alb_target_group_arn
   alb_listener_rule    = module.alb.alb_listener_rule
+}
+
+module "acm_route53" {
+  source       = "./modules/acm_route53"
+  domain_name  = var.domain_name
+  alb_dns_name = module.alb.alb_dns_name
+  alb_zone_id  = module.alb.alb_zone_id
 }

@@ -80,3 +80,50 @@ resource "aws_lb_target_group" "main" {
     path = "/"
   }
 }
+
+resource "aws_lb_listener" "https" {
+  load_balancer_arn = aws_lb.main.arn
+
+  certificate_arn = var.acm_certificate_arn
+
+  port     = "443"
+  protocol = "HTTPS"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.main.id
+  }
+}
+
+resource "aws_lb_listener_rule" "http_to_https" {
+  listener_arn = aws_lb_listener.main.arn
+
+  priority = 99
+
+  action {
+    type = "redirect"
+
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
+  }
+  condition {
+    host_header {
+      values = [var.domain_name]
+    }
+  }
+}
+
+resource "aws_security_group_rule" "alb_https" {
+  security_group_id = aws_security_group.alb.id
+
+  type = "ingress"
+
+  from_port = 443
+  to_port   = 443
+  protocol  = "tcp"
+
+  cidr_blocks = ["0.0.0.0/0"]
+}
