@@ -25,5 +25,9 @@ module "alb" {
 }
 
 module "ecs" {
-  source = "./modules/ecs"
+  source               = "./modules/ecs"
+  vpc_id               = module.vpc.vpc_id
+  private_subnets_id   = module.vpc.private_subnets_id
+  alb_target_group_arn = module.alb.alb_target_group_arn
+  alb_listener_rule    = module.alb.alb_listener_rule
 }

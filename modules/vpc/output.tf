@@ -5,3 +5,7 @@ output "vpc_id" {
 output "public_subnets_id" {
   value = values(aws_subnet.public)[*].id
 }
+
+output "private_subnets_id" {
+  value = values(aws_subnet.private)[*].id
+}
