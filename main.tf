@@ -17,3 +17,9 @@ resource "aws_s3_bucket" "terraform_state" {
 module "vpc" {
   source = "./modules/vpc"
 }
+
+module "alb" {
+  source            = "./modules/alb"
+  vpc_id            = module.vpc.vpc_id
+  public_subnets_id = module.vpc.public_subnets_id
+}
