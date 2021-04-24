@@ -23,3 +23,7 @@ module "alb" {
   vpc_id            = module.vpc.vpc_id
   public_subnets_id = module.vpc.public_subnets_id
 }
+
+module "ecs" {
+  source = "./modules/ecs"
+}
