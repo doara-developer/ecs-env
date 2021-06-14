@@ -3,10 +3,17 @@ variable "aws_secret_key" {}
 variable "domain_name" {}
 
 provider "aws" {
-  version    = "~> 3.0"
   access_key = var.aws_access_key
   secret_key = var.aws_secret_key
   region     = "ap-northeast-1"
+
+}
+
+terraform {
+  required_version = ">= 0.13"
+  required_providers {
+    aws = "~> 3.0"
+  }
 }
 
 resource "aws_s3_bucket" "terraform_state" {
@@ -19,25 +26,31 @@ module "vpc" {
   source = "./modules/vpc"
 }
 
-module "alb" {
-  source              = "./modules/alb"
-  vpc_id              = module.vpc.vpc_id
-  public_subnets_id   = module.vpc.public_subnets_id
-  acm_certificate_arn = module.acm_route53.acm_certificate_arn
+module "api_gateway" {
+  source              = "./modules/api_gateway"
+  nlb_arn             = module.nlb.nlb_arn
+  nlb_dns_name        = module.nlb.nlb_dns_name
   domain_name         = var.domain_name
+  acm_certificate_arn = module.acm_route53.acm_certificate_arn
+}
+
+module "nlb" {
+  source             = "./modules/nlb"
+  vpc_id             = module.vpc.vpc_id
+  private_subnets_id = module.vpc.private_subnets_id
 }
 
 module "ecs" {
   source               = "./modules/ecs"
   vpc_id               = module.vpc.vpc_id
   private_subnets_id   = module.vpc.private_subnets_id
-  alb_target_group_arn = module.alb.alb_target_group_arn
-  alb_listener_rule    = module.alb.alb_listener_rule
+  alb_target_group_arn = module.nlb.nlb_target_group_arn
+  alb_listener_rule    = module.nlb.nlb_listener_rule
 }
 
 module "acm_route53" {
-  source       = "./modules/acm_route53"
-  domain_name  = var.domain_name
-  alb_dns_name = module.alb.alb_dns_name
-  alb_zone_id  = module.alb.alb_zone_id
+  source      = "./modules/acm_route53"
+  domain_name = var.domain_name
+  dns_name    = module.api_gateway.domain_name
+  zone_id     = module.api_gateway.zone_id
 }
